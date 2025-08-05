@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Rubik's Cube Trainer</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      text-align: center;
+      padding: 20px;
+      background-color: #f0f0f0;
+    }
+
+    h1 {
+      color: #333;
+    }
+
+    #scramble {
+      font-size: 20px;
+      margin: 20px;
+      color: #0066cc;
+    }
+
+    #timer {
+      font-size: 40px;
+      margin: 20px;
+      color: #ff3300;
+    }
+
+    #average {
+      font-size: 20px;
+      margin: 10px;
+      color: #006600;
+    }
+
+    button {
+      padding: 10px 20px;
+      font-size: 18px;
+      margin: 10px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <h1>Rubik's Cube Trainer</h1>
+
+  <div id="scramble">Press "New Scramble" to begin</div>
+  <button onclick="generateScramble()">New Scramble</button>
+
+  <h2 id="timer">0.00</h2>
+  <button onclick="startTimer()">Start</button>
+  <button onclick="stopTimer()">Stop</button>
+
+  <div id="average">Average of last 5 solves: N/A</div>
+
+  <script>
+    let startTime;
+    let timerInterval = null;
+    let solveTimes = [];
+
+    function startTimer() {
+      if (timerInterval) return; // αποφυγή πολλαπλών timers
+      startTime = Date.now();
+      document.getElementById("timer").textContent = "0.00";
+      timerInterval = setInterval(() => {
+        const elapsed = (Date.now() - startTime) / 1000;
+        document.getElementById("timer").textContent = elapsed.toFixed(2);
+      }, 100);
+    }
+
+    function stopTimer() {
+      if (!timerInterval) return; // αν δεν τρέχει timer, μην κάνεις τίποτα
+      clearInterval(timerInterval);
+      timerInterval = null;
+      const finalTime = (Date.now() - startTime) / 1000;
+      solveTimes.push(finalTime);
+
+      if (solveTimes.length > 5) {
+        solveTimes.shift(); // κρατάμε μόνο τα τελευταία 5
+      }
+
+      updateAverage();
+    }
+
+    function updateAverage() {
+      if (solveTimes.length < 5) {
+        document.getElementById("average").textContent =
+          "Average of last 5 solves: Need " + (5 - solveTimes.length) + " more";
+        return;
+      }
+
+      const sum = solveTimes.reduce((a, b) => a + b, 0);
+      const avg = sum / solveTimes.length;
+      document.getElementById("average").textContent =
+        "Average of last 5 solves: " + avg.toFixed(2) + "s";
+    }
+
+    function generateScramble() {
+      const moves = ["R", "R'", "L", "L'", "U", "U'", "D", "D'", "F", "F'", "B", "B'"];
+      let scramble = "";
+      for (let i = 0; i < 20; i++) {
+        const move = moves[Math.floor(Math.random() * moves.length)];
+        scramble += move + " ";
+      }
+      document.getElementById("scramble").textContent = scramble.trim();
+    }
+  </script>
+</body>
+</html>
